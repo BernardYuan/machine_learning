@@ -1,0 +1,9 @@
+*.py[c]
+*.pages
+*.zip
+*.png
+*.npy
+__pycache_
+results
+.DS_Store
+.python-version
