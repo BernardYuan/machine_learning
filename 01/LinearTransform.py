@@ -1,7 +1,8 @@
 #Yuan Bowei, 1001916, 22 Sept,2015
+#This part was tested in the midterm today
 import numpy as np
-import scipy as scp 
-import matplotlib.pyplot as plt 
+import scipy as scp
+import matplotlib.pyplot as plt
 #generate the 2D gaussian
 row1=np.random.normal(1,1,100)
 row2=np.random.normal(3,1,100)
