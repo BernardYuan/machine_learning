@@ -51,14 +51,69 @@ $logP(x_1,x_2,...,x_n,y_0,y_1,..,y_{n+1}) = \sum_{i=1}^nlogP(y_i|y_{i-1}) + \sum
 
 Another two facts that we can use to facilitate our further calculation are that:
 
-$\forall WORD \in D_n, \sum_{i=1}^nP(y_i|WORD) = 1$
+$\forall TAG \in D_n, \sum_{i=1}^nP(next=y_i|current=TAG) = 1$
 
-$\forall TAG \in D_n,  \sum_{i=1}^n P(x_i|TAG) = 1$
+$\forall TAG \in D_n,  \sum_{i=1}^n P(word=x_i|tag=TAG) = 1$
 
-**Second step**, optimization. In order to get the maximized log likelihood, we take derivative according to $P(y_i|y_{i-1})$ and $P(x_i|y_i)$ and set them to zero for the optimal value. We get following two expressions (2) and (3):
+**Second step**, optimization. In order to get the maximized log likelihood, we take derivative according to $P(y_i|y_{i-1})$ and $P(x_i|y_i)$ and set them to zero for the optimal value. We get following two expressions (2) and (3), where $W_i$ stands for $word_i$, and $T_i$ stands for $Tag_i$ :
 
-(2): $\frac{\partial logP(x_1,x_2,...,x_n,y_0,y_1,...,y_{n+1})}{\partial P(y_i|y_{i-1})} = 0$
+(2): $\frac{\partial logP(x_1,x_2,...,x_n,y_0,y_1,...,y_{n+1})}{\partial P(next=T_i|current=T_j)} = 0$
 
-(3): $\frac{\partial logP(x_1,x_2,...,x_n,y_0,y_1,...,y_{n+1})}{\partial P(x_i|y_i)} = 0$
+(3): $\frac{\partial logP(x_1,x_2,...,x_n,y_0,y_1,...,y_{n+1})}{\partial P(word=W_i|tag=T_i)} = 0$
 
-For equation (2), we can get 
+With these two equations and two conditions given above, we can reach the estimation of the ***transition probability*** and ***emission probability***:
+
+*Transition Probability: $T(a|b)= \frac{count(current=b,next=a)}{count(b)}$
+
+*Emission Probability: $E(x|y)= \frac{count(label=y,word=x)}{count(label=y)}$
+
+###1.4 In this example:
+With the estimators we got from 1.3, the ***transition matrix*** and ***emission matrix*** are following:
+
+* **Transition matrix:**
+
+Transition|current=START|current=X|current=Y|current=Z
+----|-------:|------:|-----:|-----:
+next=X|$ \frac{1}{2}$|$\frac{2}{7}$|$\frac{1}{4}$|$\frac{1}{7}$
+next=Y|0|0|0|$\frac{4}{7}$
+next=Z	|$\frac{1}{2}$|$\frac{3}{7}$|0|$\frac{1}{7}$
+next=END|0|$\frac{2}{7}$|$\frac{3}{4}$|$\frac{1}{7}$
+* **Emission matrix:**
+
+Emission|X|Y|Z
+---|---|---|---
+a|$\frac{3}{7}$|$\frac{1}{2}$|$\frac{1}{7}$
+b|$\frac{2}{7}$|0|$\frac{4}{7}$
+c|$\frac{2}{7}$|$\frac{1}{4}$|$\frac{1}{7}$
+d|0|$\frac{1}{4}$|$\frac{1}{7}$
+
+##2. Viterbi Algorithm
+* **Step 1.**
+At the first position, we calculate the posibility for each label *y*, where $P = T(next=y|current=START)E(word=a|label=y)$
+
+X|Y|Z
+---|---|---
+$\frac{1}{2}*\frac{3}{7}=\frac{3}{14}$|0|$\frac{1}{2}*\frac{1}{7}=\frac{1}{14}$
+* **Step 2.**
+At the second position, we compute:
+	
+  1.the maximum probabilities of each labels at this position, by multiplying the trasition probability from that label and the corresponding emission probability for different labels and take the maximum one among them
+  
+  2.by the way memorise from wich possible label at the previous position we generated this maximum probability, in other words, the parent node (previous label) of this label.
+
+X|Y|Z
+---|---|---
+$\frac{3}{14}*\frac{2}{7}*\frac{2}{7}=\frac{6}{343}$ from X|0|$\frac{3}{14}*\frac{4}{7}*\frac{3}{7}=\frac{18}{343}$ from X
+
+* **Step 3.**
+
+Based on the result of first two steps, now we have to compute the probability of each label when the setence end. Just multiply the probability of the label at the final position with the label's probability to occur at the end, and take the maximum one.
+
+**End**: $\frac{18}{343}*\frac{1}{7}=\frac{18}{2401}$ from Z.
+
+So we have got the longest path, and therefore the most probable label sequence is:
+
+START -> X -> Z -> END
+
+##3. 2-Order Hidden Markov Model
+To apply this 2-order HMM, at each position, we will calculate the highest score of combination of different possible labels at this position and the position in front of the current one. As we know at each position $i$, there are $T$ different possible labels at this position $p_i$. And for each one of these $T$ possibilities, there are also $T$ possibilities for $p_{i-1}$, the position in front of it. To compute the highest score for each pair of words in sequence ($p_{i-1}$,$p_i$), we have to enumerate all $T$ possibilities in $p_{i-2}$, and take the maximum one of them. 
