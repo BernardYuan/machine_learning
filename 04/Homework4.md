@@ -116,4 +116,18 @@ So we have got the longest path, and therefore the most probable label sequence 
 START -> X -> Z -> END
 
 ##3. 2-Order Hidden Markov Model
+###Generating phase
 To apply this 2-order HMM, at each position, we will calculate the highest score of combination of different possible labels at this position and the position in front of the current one. As we know at each position $i$, there are $T$ different possible labels at this position $p_i$. And for each one of these $T$ possibilities, there are also $T$ possibilities for $p_{i-1}$, the position in front of it. To compute the highest score for each pair of words in sequence ($p_{i-1}$,$p_i$), we have to enumerate all $T$ possibilities in $p_{i-2}$, and take the maximum one of them. 
+
+Thus, at each $p_i$, our algorithm use $O(T^3)$ time to maintain a $O(T^2)$ matrix to store the highest score for labels in a pair of positions $(p_{i-1},p_i)$, and store from which label of $p_{i-2}$ each highest score was generated, with the function:
+
+$P(x_1,x_2,...,x_n,y_1,y_2,...,y_n)=\prod_{i=1}^{n+1}P(y_i|y_{i-2},y_{i-1})\prod_{i=1}^{n}P(x_i|y_i)$
+
+As we have *n* positions in total, in this phase, the time complexity is O(nT^3) and space complexity is O(nT^2).
+
+###Decoding phase
+Finally after our generating phase, at the $n+1$ position where the sentence's END. And we can get a pair of labels for position pair $(p_{n-1},p_n)$ from where we reached the end of sentence.
+
+Then with this pair of label in $(p_{n-1},p_n)$ and the $O(T^2)$ matrix we stored in $p_{n}$ we can generate the label pair for position pair $(p_{n-2},p_{n-1})$. So on so forth, till back to the beginning, we can decode the entire sentence. This process is O(n).
+
+##4. 
