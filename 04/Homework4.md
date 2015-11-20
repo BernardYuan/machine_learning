@@ -130,4 +130,39 @@ Finally after our generating phase, at the $n+1$ position where the sentence's E
 
 Then with this pair of label in $(p_{n-1},p_n)$ and the $O(T^2)$ matrix we stored in $p_{n}$ we can generate the label pair for position pair $(p_{n-2},p_{n-1})$. So on so forth, till back to the beginning, we can decode the entire sentence. This process is O(n).
 
-##4. 
+##4.
+
+###Introduction
+Firstly we define three probabilities in this algorithm:
+
+1. Transition probability $\alpha(Z_i,Z_{i+1})$, which is basically the same as the transition probatility in the HMM we have discussed in class, standing for the probability of transitioning to state $Z_{i+1}$ when we know $Z_i$, that is: $$\alpha(Z_i=a,Z_{i+1}=b)=P(Z_{i+1}=b|Z_i=a)$$
+2. First Emit Probability $\beta(Z_i,X_i)$, denoting the probability of emitting a certain tag $X_i$ from the state $Z_i$, that is:$$\beta(Z_i=a,X_i=b)=P(X_i=b|Z_i=a)$$
+3. Second Emit Probability $\gamma(Z_i,X_i,Y_i)$, standing for the probability that we generate a certain $Y_i$ with given $Z_i$ and $X_i$, in a concise form: $$\gamma(Z_i=a,X_i=b,Y_i=c)=P(Y_i=c|Z_i=a, X_i=b)$$
+
+In this problem, analogously to HMM model we have discussed in class, given the observation paris $(X_1,Y_1,X_2,Y_2,...,X_n,Y_n)$, we want to generate optimal state sequence $Z_1,Z_2,...,Z_n$ such that (suppose $Z_0=START$ and $Z_{n+1}=STOP$): $$Z_1^*,Z_2^*,....,Z_n^*=argmax_{Z_1,Z_2,...,Z_n}P(Z_0,Y_1,X_1,Z_1,Y_2,X_2,Z_2,...,Y_n,X_n,Z_n,Z_{n+1};\theta)$$
+$$argmax_{Z_1,Z_2,...,Z_n}\prod_{i=1}^{n+1}\alpha(Z_{i-1},Z_i)\prod_{i=1}^n\beta(Z_i,X_i)\prod_{i=1}^n\gamma(Z_i,X_i,Y_i)$$
+$$=argmax_{Z_1,Z_2,...,Z_n}\prod_{i=1}^{n+1}P(Z_i|Z_{i-1};\theta)\prod_{i=1}^nP(X_i|Z_i;\theta)\prod_{i=1}^nP(Y_i|X_i,Z_i;\theta)$$
+So we can apply the Dynamic Programming Algorithm to this problem, at each position $i$ in one sentence, for each possible state $Z_i^{(j)}, j \in (1,2,..,k)$ at each position, we define a forward score: $$Score(Z_i^{(j)})=\max P(Z_i^{(j)}|X_i,Y_i)=\max Score(Z_i^{(m)})P(Z_i^{(j)}|Z_{i-1}^{(m)})P(X_i|Z_i^{(j)})P(Y_i|X_i,Z_i^{(j)})$$ *,for all m $\in$ (1,2,...,k)*
+
+Besides the general case formula, we also define the Score function at the START and STOP position:
+
+ * At START position(the first word of a sentence): $Score(Z_i^{(j)})=P(Z_i^{(j)}|START)P(X_i|Z_i^{(j)})P(Y_i|X_i,Z_i^{(j)})$
+ * At STOP position(after the last the word of a sentence): $Score(STOP)=\max Score(Z_i^{(m)})P(STOP|Z_i^{(m)})$
+
+
+Thus our forward procedure is:
+
+1. Enumerate all positions in one sentence. $O(n)$
+2. At each position $i$, we enumerate all possible tags at this position. $O(k)$
+3. For each possible tag $Z_i$ at this position, we enumerate all possible tags at the position in front of the current position, $Z_{i-1}$. For each $Z_{i-1}$, we calculate the score with the Score function introduced above, finally we take the highest score among all $Z_{i-1}$ and save it as the score of tag $Z_{i}$. $O(k)$
+4. In conclusion, the forward procedure takes $O(nk^2)$ time and $O(nk^2)$ space
+
+
+The decoding procedure has 2 versions of solutions:
+
+1. The simple solution:
+ * In the step3 of forward procedure mentioned above, when we save the maximum score for tag $Z_i^{(j)}$, we also save from which one of $Z_{i-1}^{(m)}$ we get this maximum score.
+ * Then if we can go reversely from the STOP to the START of a sentence, when we know $Z_i$, we can definitely find $Z_{i-1}$ with the information we have saved, and hence we could recover the states sequence. The time complexity would be $O(n)$. But the space complexity would be doubled.
+2. The complicated solution：
+  * with the score at the position $i$, we can compute the score at the position by the formula: $Score(i-1)=\frac{Score(i)}{P(Z_i|Z_{i-1})P(X_i|Z_i)P(Y_i|Z_i,X_i)}$, and with this score we can determine the optimal tag at the prior position.
+  * Therefore in the STOP position $n+1$, we can determine the optimal tag at position $n$. So when we move backword from STOP to START, the sentence is decoded. The time complexity would be O(nk), the space complexity remains the same.
