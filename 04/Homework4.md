@@ -6,14 +6,14 @@ HMM consists of two parts, the ***transition parameters*** and ***emission param
 
 Initially the goal of this model is to get a mapping function:
 
-$$f(x_1,x_2,...,x_n) = argmax_{y_1,y_2,..,y_n} P(x_1,x_2,...,x_n,y_1,...,y_n)$$
+$$f(x_1,x_2,...,x_n) = argmax_{y_0,y_1,..,y_{n+1}} P(x_1,x_2,...,x_n,y_0,y_1,...,y_{n+1})$$
 
-Which means that we are trying to find out the tags for a sequence of words which makes the joint probobality $P(x_1,x_2,...,x_n,y_1,....y_n)$ to be maximum. This joint probability is mathematically equivalent to conditional probability (1):
-$P(y_1,y_2,...,y_n)P(x_1,x_2,x_3,...,x_n|y_1,y_2,...,y_n)$
+Which means that we are trying to find out the tags for a sequence of words which makes the joint probobality $P(x_1,x_2,...,x_n,y_0,y_i,....y_{n+1})$ to be maximum. This joint probability is mathematically equivalent to conditional probability (1):
+$P(y_0,y_1,...,y_{n+1})P(x_1,x_2,x_3,...,x_n|y_0,y_1,...,y_{n+1})$
 ###1.1 Transition Parameters
 The first term is the probability (1) to get one particular sequence of tags, it can be extended into:
 
-$P(y_1,y_2,...,y_n)$
+$P(y_0,y_1,...,y_{n+1})$
 
 $=P(y_0)P(y_1|y_0)P(y_2|y_1,y_0)...P(y_{n+1}|y_0,y_1,...,y_n)$
 	
@@ -30,7 +30,7 @@ This parameter, or this product of parameters, named ***transition parameters***
 ###1.2 Emission Parameters
 Now let's look at the second term in (1), the conditional probability, which could be extended to:
 
-$ \prod_{i=1}^n P(x_i|x_1,x_2,...,x_{i-1},y_1)$
+$ \prod_{i=1}^n P(x_i|x_1,x_2,...,x_{i-1},y_i)$
 
 And here we can make another strong assumption that the probability of the incidence of each word, is ***only*** dependent of its corresponding tag. So finally the second term in (1) can be presented as:
 
