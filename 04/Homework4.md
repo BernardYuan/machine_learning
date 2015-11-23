@@ -117,7 +117,7 @@ START -> Z -> Y -> END
 
 ##3. 2-Order Hidden Markov Model
 ###Generating phase
-To apply this 2-order HMM, at each position, the tag is dependent on two tags in front of it. There for at position $p_i$ we can maintain a $T*T$ matrix to record the the highest score of tag combinations at $(p_{i-1},p_i)$. As tag in $p_{i}$ is dependent on tag pairs at $(p_{i-2},p_{i-1})$, therefore to compute the highest score for each pair of words in sequence ($p_{i-1}$,$p_i$), we have to enumerate all $T$ possibilities in $p_{i-2}$, and take the maximum one of them.
+To apply this 2-order HMM, at each position, the tag is dependent on two tags in front of it. Therefore at position $p_i$ we can maintain a $T*T$ matrix to record the the highest score of each tag combination at $(p_{i-1},p_i)$. As tag in $p_{i}$ is dependent on tag pairs at $(p_{i-2},p_{i-1})$, therefore to compute the highest score for each pair of tags in position pair ($p_{i-1}$,$p_i$), we have to enumerate all $T$ possibilities at $p_{i-2}$, and take the maximum one of them.
 
 So the procedure is:
 
@@ -155,7 +155,7 @@ Besides the general case formula, we also define the Score function at the START
  * At STOP position(after the last the word of a sentence): $Score(STOP)=\max_{m\in(1,2,...,T)} Score(Z_i^{(m)})P(STOP|Z_i^{(m)})$
 
 
-Thus our forward procedure is:
+###Thus our forward procedure is:
 
 1. Enumerate all positions in one sentence. $O(n)$
 2. At each position $i$, we enumerate all possible tags at this position. $O(T)$
@@ -163,7 +163,7 @@ Thus our forward procedure is:
 4. In conclusion, the forward procedure takes $O(nT^2)$ time and $O(nT)$ space
 
 
-The decoding procedure has 2 versions of solutions:
+###The decoding procedure has 2 versions of solutions:
 
 1. The simple solution:
  * In the step3 of forward procedure mentioned above, when we save the maximum score for tag $Z_i^{(j)}$, we also save from which one of $Z_{i-1}^{(m)}$ we get this maximum score.
