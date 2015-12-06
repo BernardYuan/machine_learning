@@ -135,7 +135,7 @@ Finally after our generating phase, at the $n+1$ position where the sentence's E
 
 Then with this pair of label in $(p_{n-1},p_n)$ and the $O(T^2)$ matrix we stored in $p_{n}$ we can generate the label pair for position pair $(p_{n-2},p_{n-1})$. So on so forth, till back to the beginning, we can decode the entire sentence. This process is O(n).
 
-##4.
+##4. Attention: This answer is Wrong!!!
 
 ###Introduction
 Firstly we define three probabilities in this algorithm:
